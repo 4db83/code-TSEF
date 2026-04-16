@@ -42,9 +42,9 @@ for (i in 1:Nsim){
     # print iterations to screen
     t.tmp = Nsim*(proc.time() - T0)
     if (i == 1){
-      cat("---------------------------------------------------------------------\n")
-      cat("    Total time is approximately: ", t.tmp[3], "Seconds\n")
-      cat("---------------------------------------------------------------------\n")
+    cat("---------------------------------------------------------------------\n")
+    cat("    Total time is approximately: ", t.tmp[3], "Seconds\n")
+    cat("---------------------------------------------------------------------\n")
     }
     # store the ARMA terms
     arma.terms[i,] = aout$arma[1:2]
@@ -58,6 +58,6 @@ N_AR_terms = sum(arma.terms[,1]>0)
 N_MA_terms = sum(arma.terms[,2]>0)
 # print to screen the number of wrongly identified ARMA terms
 cat(paste0("True model is ARMA(0,0), yet Auto.arima finds \n", 
-           N_AR_terms, "× non-zero AR terms detected, and \n",
-           N_MA_terms, "× non-zero MA terms detected!!! \n") )
+    N_AR_terms, "× non-zero AR terms detected, and \n",
+    N_MA_terms, "× non-zero MA terms detected!!! \n") )
 toc()
