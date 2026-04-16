@@ -33,7 +33,7 @@ cat("MA Lag Polynomial is: "); print(as.polynomial(bL))
 # aL = c(1, 0.9557, 0.014); bL = c(1, 0.9889)
 round(polyroot(fliplr(aL)),4)
 plot.acf0(aL,bL,50)
- 
+
 # Coefficients:
 #   ar1     ar2     ma1     mean
 # -0.9557  -0.014  0.9889  -0.0974
