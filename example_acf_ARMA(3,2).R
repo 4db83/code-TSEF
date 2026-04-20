@@ -9,7 +9,14 @@ if (!"pacman" %in% installed.packages()){install.packages("pacman")}
 functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
 invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
 # LOAD REQUIRED PACKAGES
-pacman::p_load(polynom, matlab)
+pacman::p_load( polynom,matlab )
+# CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, loads online GoogleDrive version
+# must use file before the source command to avoid Positron issues not opening files
+utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R"
+if (file.exists(utility.functions)) { source(utility.functions) } else
+{source(url("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc")) }
+# SET WORKING DIRECTORY if needed
+# setwd('D:/_teaching/_current.teaching/_SU.TSEF/code-TSEF')
 set.seed(1234)
 
 # CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, loads online GoogleDrive version
@@ -33,7 +40,7 @@ cat("MA Lag Polynomial is: "); print(as.polynomial(bL))
 # aL = c(1, 0.9557, 0.014); bL = c(1, 0.9889)
 round(polyroot(fliplr(aL)),4)
 plot.acf0(aL,bL,50)
-
+					
 # Coefficients:
 #   ar1     ar2     ma1     mean
 # -0.9557  -0.014  0.9889  -0.0974

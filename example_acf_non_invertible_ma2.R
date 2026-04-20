@@ -1,19 +1,25 @@
-# Script: example_acf_non_invertible_ma2.R ----
-# NOTE: To run this script, you also need "R_help_functions.R" available at: https://github.com/4db83/code-TSEF.
-# clear screen/workspace
+# %%  CLEAR THE CONSOLE
 cat("\014"); rm(list = ls()); gc()
-# SET WORKING DIRECTORY PATH IF NEED
-# this is mine, your need to set your path
-# setwd("D:/_teaching/_current.teaching/_SU.TSEF/lectures/code-TSEF")
-
-# INSTALL PACMAN PACKAGE MANAGER IF NOT INSTALLED. 
-# (Note: you may need to disable windows firewall to allow installation)
-if (!"pacman" %in% installed.packages()){install.packages("pacman"); cat("pacman installed\n")}
+# SET DEFAULTS: DISPLAY OPTIONS, FONT AND Y AXIS LABEL ROTATION
+options(digits = 8); options(scipen = 999);  options(max.print=10000)
+windowsFonts("Palatino" = windowsFont("Palatino Linotype")); par(las = 1, family = "Palatino")
+# INSTALL PACMAN PACKAGE MANAGER IF NOT INSTALLED
+if (!"pacman" %in% installed.packages()){install.packages("pacman")}
+# LOAD HELPER FUNCTIONS STORED IN LOCAL DIRECTORY CALLED: ./local.Functions/
+functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
+invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
 # LOAD REQUIRED PACKAGES
-pacman::p_load(polynom, matlab)
-source("./R_utility_functions.R")
+pacman::p_load( polynom,matlab )
+# CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, loads online GoogleDrive version
+# must use file before the source command to avoid Positron issues not opening files
+utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R"
+if (file.exists(utility.functions)) { source(utility.functions) } else
+{source(url("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc")) }
+# SET WORKING DIRECTORY if needed
+# setwd('D:/_teaching/_current.teaching/_SU.TSEF/code-TSEF')
+set.seed(1234)
 
-# Non-invertible MA Lag polynomial ----
+# %% Non-invertible MA Lag polynomial 
 b1 = -3.5 ; b2 = -2;
 bL = c(1, +b1, +b2);   
 

@@ -1,29 +1,32 @@
-# CLEAR THE CONSOLE
+# %%  CLEAR THE CONSOLE
 cat("\014"); rm(list = ls()); gc()
 # SET DEFAULTS: DISPLAY OPTIONS, FONT AND Y AXIS LABEL ROTATION
-options(digits = 8); options(scipen = 9999); options(max.print=10000); par(las = 1, family = "serif")
-# INSTALL PACMAN PACKAGE MANAGER IF NOT INSTALLED 
+options(digits = 8); options(scipen = 999);  options(max.print=10000)
+windowsFonts("Palatino" = windowsFont("Palatino Linotype")); par(las = 1, family = "Palatino")
+# INSTALL PACMAN PACKAGE MANAGER IF NOT INSTALLED
 if (!"pacman" %in% installed.packages()){install.packages("pacman")}
-# SET WORKING DIRECTORY 
-# setwd('D:/_teaching/_current.teaching/_SU.TSEF/code-TSEF')
 # LOAD HELPER FUNCTIONS STORED IN LOCAL DIRECTORY CALLED: ./local.Functions/
-functions_path = c("./local.Functions/"); if (dir.exists(functions_path)){
+functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
 invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
-# UNCOMMENT TO LOAD R BASELINE R_utility_functions.R FROM D:/matlab.tools/db.toolbox
-# source("D:/matlab.tools/db.toolbox/R_utility_functions.R")
-source("./R_utility_functions.R")
 # LOAD REQUIRED PACKAGES
-pacman::p_load(tictoc,matlab,tsibble,zoo,tidyverse,readxl,sandwich,car,quantmod); 
-tic(); set.seed(1234)
+pacman::p_load( tictoc,matlab,tsibble,zoo,tidyverse,readxl,sandwich,car,quantmod ) 
+# CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, loads online GoogleDrive version
+# must use file before the source command to avoid Positron issues not opening files
+utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R"
+if (file.exists(utility.functions)) { source(utility.functions) } else
+{source(url("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc")) }
+# SET WORKING DIRECTORY if needed
+# setwd('D:/_teaching/_current.teaching/_SU.TSEF/code-TSEF')
+set.seed(1234)
 
-## SCRIPT STARTS HERE ----
+# %% SCRIPT STARTS HERE 
 # 1) read data as tsibble
 NP = read_xlsx("./data/Nelson_Plosser_data.xlsx")
 # NP$Year = ymd(NP$Year, truncated = 2L)
 # NP = as_tsibble(NP, index = Year)
 # print(NP, n = 150)
 
-# select the variable to work with for the ADF tests ---- 
+# select the variable to work with for the ADF tests 
 variable_selected = "PCRGNP"        
 y = log(get(variable_selected, NP))           # y = log(NP$"PCRGNP")
 # convert -inf due to log(0) to NA which R handles by removing them 
@@ -56,7 +59,7 @@ cat(" F-stat:", round(Fstat, digits = 8), "\n")
 # 𝜙3: 6.49 and 8.73 (95% and 99%)
 # if Ftest > 6.49  --> Reject H₀: 𝛾 = a₂ = 0.
 if (Fstat < 6.49) { cat( " Do NOT Reject H₀: 𝛾 = a₂ = 0 --> Series has a unit-root! \n " )} else
-   { cat(" Reject H₀: 𝛾 = a₂ = 0 --> Series stationary around a deterministic time trend!") } 
+	{ cat(" Reject H₀: 𝛾 = a₂ = 0 --> Series stationary around a deterministic time trend!") } 
 cat("\n")
 
 # select the variable to work with for the ADF tests -------------------------------------------------
