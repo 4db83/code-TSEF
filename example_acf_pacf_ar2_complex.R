@@ -48,7 +48,7 @@ char.roots = eigen(Phi)[1] # returns a list
 cat("Characteristics roots (eigenvalues of Phi) are:", unlist(char.roots), "\n")
 
 # plot theoretical ACF/PACF 
-plot.acf0(aL,1,50)
+plot_acf0(aL,1,50)
 
 # plot of simulated series of sample size 200 
 set.seed(123);

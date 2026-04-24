@@ -20,7 +20,8 @@ if (file.exists(utility.functions)) { source(utility.functions) } else
 set.seed(1234)
 
 # %% AR Lag polynomial
-a1 = 1.50 ; a2 = -0.56 
+a1 =  1.50 
+a2 = -0.56 
 aL = c(1, -a1, -a2)
 # companion matrix Phi
 Phi = matrix( c(a1,a2,1,0), nrow = 2,ncol = 2)
@@ -56,4 +57,4 @@ plot(	polynomial(fliplr(aL)), xlim = c(0.5,.9), ylim = c(-0.01, 0.01), col="dodg
 abline(h = 0); abline(v = Re(fact.roots), col="red", lwd=2, lty=2)
 
 # plot theoretical ACF/PACF -----
-plot.acf0(aL,1,50)
+plot_acf0(aL,1,50)

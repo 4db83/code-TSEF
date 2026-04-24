@@ -41,16 +41,16 @@ plot( Date, y, type = 'l', lwd = 1.5,
       cex.lab  = 1.5, cex.axis = 1.5, cex.main = 1.5 )
 
 # plot ACF
-pacf = plot.acf(dy)
+pacf = plot_acf(dy)
 head(pacf)
 
 # Do F-test (manually) to test if unit-root with drift --> 𝛾 = a₂ = 0 (Joint F-test ϕ₃)
 # joint.1 = linearHypothesis( adf.1, c("trend=0", "lag(dy, 1) =0"), test = c("F") )
 # print(joint.1)
 cat(" Nelson-Plosser Series analyzed is: ", variable_selected, "\n")
-df.UR = print.results( lm(dy ~ trend + lag(y) + lag(dy,1) ) , -2, Hide = 0)
-df.R  = print.results( lm(dy ~                  lag(dy,1) ) , -2, Hide = 1)
-plot.acf(df.UR$uhat)
+df.UR = print_results( lm(dy ~ trend + lag(y) + lag(dy,1) ) , -2, Hide = 0)
+df.R  = print_results( lm(dy ~                  lag(dy,1) ) , -2, Hide = 1)
+plot_acf(df.UR$uhat)
 
 No.restrictions = df.UR$K - df.R$K
 Fstat = 1/No.restrictions *(df.R$SSE - df.UR$SSE)/(df.UR$SSE) * df.UR$DF
@@ -76,16 +76,16 @@ plot( Date, y, type = 'l', lwd = 1.5,  # ylim=c(4, 10),
       cex.lab  = 1.5, cex.axis = 1.5, cex.main = 1.5 )
 
 # plot ACF
-pacf = plot.acf(y)
+pacf = plot_acf(y)
 head(pacf)
 
 # Do F-test (manually) to test if unit-root without drift --> a₀ = 𝛾 = 0 (Joint F-test ϕ₃)
 # joint.1 = linearHypothesis( adf.1, c("trend=0", "lag(dy, 1) =0"), test = c("F") )
 # print(joint.1)
 cat(" Nelson-Plosser Series analyzed is: ", variable_selected, "\n")
-df.UR = print.results( lm(dy ~ lag(y) + lag(dy, 1) ) , -2, Hide = 0)
-df.R  = print.results( lm(dy ~ 0      + lag(dy, 1) ) , -2, Hide = 1)
-plot.acf(df.UR$uhat)
+df.UR = print_results( lm(dy ~ lag(y) + lag(dy, 1) ) , -2, Hide = 0)
+df.R  = print_results( lm(dy ~ 0      + lag(dy, 1) ) , -2, Hide = 1)
+plot_acf(df.UR$uhat)
 
 No.restrictions = df.UR$K - df.R$K
 Ftest = 1/No.restrictions *(df.R$SSE - df.UR$SSE)/(df.UR$SSE) * df.UR$DF
@@ -96,4 +96,4 @@ cat(" F-stat:", round(Ftest, digits = 4), "\n")
 if (Ftest < 4.72) { cat( " Do NOT Reject H₀: a₀ = 𝛾 = 0 --> Series has a Unit-root without drift! " )} else
 { cat(" Reject H₀: a₀ = 𝛾 = 0 --> Series is stationary!") }
 
-plot.acf(dy)
+plot_acf(dy)

@@ -24,7 +24,7 @@ b1 = -3.5 ; b2 = -2;
 bL = c(1, +b1, +b2);   
 
 # plot theoretical ACF/PACF of non-ivertible MA
-plot.acf0(1,bL,50)
+plot_acf0(1,bL,50)
 
 # lag-polynomial and roots
 cat("For the non-invertible process \n")
@@ -64,6 +64,6 @@ if (sum(Im(fact.roots_plus)==0)) {
 }
 
 # plot theoretical ACF/PACF of non-ivertible MA
-plot.acf0(1,bL_plus,50)
+plot_acf0(1,bL_plus,50)
 
 
