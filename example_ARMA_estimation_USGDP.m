@@ -93,7 +93,7 @@ plotacf(usdata.dy);
 %% ESTIMATE THE ARMA MODELS
 % set upper bounds for p* and q* to search over the ARMA model: CHOOSE THESE CAREFULLY.
 P = 2;
-Q = 2;
+Q = 1;
 
 % Space allocation for bic and aic values
 BIC_pq	= zeros(P+1,Q+1);

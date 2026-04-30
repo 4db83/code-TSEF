@@ -10,11 +10,18 @@ functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
 invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
 # LOAD REQUIRED PACKAGES
 pacman::p_load(	tictoc,matlab,zoo,sandwich,furrr,parallel)
-# CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, loads online GoogleDrive version
-# must use file before the source command to avoid Positron issues not opening files
-utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R"
-if (file.exists(utility.functions)) { source(utility.functions) } else
-{source(url("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc")) }
+# CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, (down)loads online GoogleDrive version
+utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R";  # use file before to avoid Positron issues not opening files
+local.Rfunction   = "R_utility_functions.R"; 
+if (file.exists(local.Rfunction)){source(local.Rfunction) 
+} else if(file.exists(substr(utility.functions,9,nchar(utility.functions)))){source(utility.functions)
+} else {download.file("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc", destfile = local.Rfunction, mode = "wb")
+  source(url("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc"))}
+# define some printing to pdf parameters and graphics directory
+print2pdf = 0
+path2graphics = "./graphics/"
+# fix seed if needed for reproducibility of results
+set.seed(1234)
 # SET WORKING DIRECTORY if needed
 # setwd('D:/_teaching/_current.teaching/_SU.TSEF/code-TSEF')
 
