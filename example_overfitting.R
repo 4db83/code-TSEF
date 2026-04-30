@@ -25,7 +25,7 @@ path2graphics = "./graphics/"
 set.seed(1234)              # fix seed if needed for reproducibility of results
 
 # %% Main code for over-fitting example
-Pmax  = 5;
+Pmax  = 5; 
 Qmax  = 5;
 T     = 3e1;
 a0    = rep(0,Pmax);
