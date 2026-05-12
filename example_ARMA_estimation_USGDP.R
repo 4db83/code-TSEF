@@ -9,8 +9,8 @@ if (!"pacman" %in% installed.packages()){install.packages("pacman")}
 functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
 invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
 # LOAD REQUIRED PACKAGES
-pacman::p_load(	tidyverse,tsibble,readxl,data.table,arrow,vroom,tictoc,matlab,
-								zoo,sandwich,reshape2,OpenSourceAP.DownloadR,quantmod,pracma,forecast)
+pacman::p_load(	tidyverse,tsibble,readxl,data.table,arrow,vroom,tictoc,matlab,zoo,patchwork,
+                sandwich,reshape2,OpenSourceAP.DownloadR,quantmod,pracma,forecast)
 # CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, (down)loads online GoogleDrive version
 utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R";  # use file before to avoid Positron issues not opening files
 local.Rfunction 	= "R_utility_functions.R";
@@ -28,83 +28,44 @@ set.seed(1234)   			# fix seed if needed for reproducibility of results
 # read US Data
 us.data = read_parquet("./data/USdata.parquet") %>%
   rename(NBER = USRECQ, gdp = GDPC1) 
-write_csv(us.data, "./data/USdata.csv")
+# write_csv(us.data, "./data/USdata.csv")
 head(us.data)
-plot_acf(us.data$dy, fntsize = 1.4)
 
 # %% PLOT THE DATA
 # break in volatility
 great.moderation = us.data$date[which(us.data$date == as.Date("1984-01-01"))]
+# set date breaks and fonts size
+fnt = 14;  date_breaks = make_dates(us.data$date, freq = 73); 
 
-# use_dark_plots()
-if (print2pdf == 1){ pdf( paste0(pdf.file.name, ".pdf"),
-                          width = 11.1, height = 6.0, onefile = TRUE) }
-fnt = 1.5 # font size
-op = par( mfrow = c(2,1), family = "serif", las = 1,
-          mgp = c(  4,.5, 0),      # axis title, labels, line, position of y,x labels to axis
-          mar = c(  4, 6, 1, 4),   # bottom, left, top, right per plot, position of the subplots inside the total plot area
-          oma = c(  1, 1, 1, 1)  ) # outer margins for overall spacing
+# plot raw series
+p1 = ggplot( us.data, aes(x = date, y = y) ) +
+      theme_db( font_size = fnt ) + 
+      theme(axis.text.x = element_text(angle = 00, vjust = 1)) + 
+      add_recessions( data = recession_periods(us.data) ) +
+      gg_yaxis( ylims = c(7.45,10.05) ) + 
+      geom_line( color = "#5B8FD1", linewidth = 3/4 ) +
+      geom_vline( xintercept = great.moderation, color = "#e62828", linetype = "dashed", linewidth = 1/2) +
+      gg_dates(date_breaks, "q")
 
-# use white background when printing to pdf
-if (print2pdf == 1) {use_dark_plots("white") }
+# plot differences
+p2 = ggplot( us.data, aes(x = date, y = dy) ) +
+      theme_db( font_size = fnt ) + 
+      theme(axis.text.x = element_text(angle = 00, vjust = 1)) + 
+      add_recessions( data = recession_periods(us.data) ) +
+      gg_yaxis( ylims = c(-12,16) ) + 
+      geom_line( color = "#5B8FD1", linewidth = 3/4 ) +
+      geom_vline( xintercept = great.moderation, color = "#e62828", linetype = "dashed", linewidth = 1/2) +
+      geom_hline( yintercept = 0, linewidth = 1/3) +
+      gg_dates(date_breaks, "q")
 
-# axis labels
-y.grid = seq(7.5,10.5,.5)                  # y-axis labels
-date.ticks = seq.Date(
-  from = min(us.data$date),
-  to   = max(us.data$date),
-  by   = "4 years"   # adjust frequency here
-)
+p12 = p1 / p2; print(p12)
+# ggsave("US-GDP.pdf", p12, height = 10, width = 12 ) 	# to save to pdf
 
-plot(	us.data$date, 
-      us.data$y,
-      type = 'l', lwd  = 2,
-      col  = "steelblue",
-      xlab = "",
-      ylab = "US Real GDP (log)",
-      pch  = 16,
-      # Font sizes
-      cex.lab  = fnt + .1,
-      # Remove default y,x-axis labels
-      xaxt = "n", yaxt = "n",
-      ylim = c(7.5,10.5),                    # set y-axis limits
-      xlim = c(	min(date.ticks)+2  *365,      # set x-axis limits for dates with off-sets
-								max(date.ticks)-1.0*365) )
+# plot ACF/PACF
+# pdf("acf_pacf.pdf", height = 6, width = 10) 					# to save to pdf
+plot_acf(us.data$dy, fntsize = 1.2);  
+# dev.off()
 
-# add grid [solid, dashed, dotted, dotdash, longdash, twodash]
-abline(lty = "dotdash", lwd = .5, h = y.grid[-1], v = date.ticks, col="lightgray")
-# Add horizontal line at y=0
-abline(h=0)
-abline(v=great.moderation, col = "red", lty = "dotted", lwd = 1.5)
-
-# add cross axis ticks
-cross_ticks( side = 1, at = date.ticks, labels = quarterly_dates(date.ticks), tcl = .2, cex = fnt )
-cross_ticks( side = 2, at = y.grid, tcl = .2, cex = fnt )
-cross_ticks( side = 4, at = y.grid, tcl = .2, cex = fnt )
-
-#  Plot 2: GDP growth (dy) with grid lines
-y2.grid = seq(-12, 16, 4)
-plot(	us.data$date,
-      us.data$dy,
-      type = 'l', lwd  = 2,
-      col  = "steelblue",
-      xlab = "",
-      ylab = "GDP Growth Rate",
-      cex.lab  = fnt + .1,
-      xaxt = "n", yaxt = "n",
-      ylim = c(-12, 16),
-      xlim = c(	min(date.ticks) + 2*365,
-								max(date.ticks) - 1.0*365))
-
-abline(lty = "dotdash", lwd = .5, h = y2.grid, v = date.ticks, col = "lightgray")
-abline(h = 0)
-abline(v=great.moderation, col = "red", lty = "dotted", lwd = 1.5)
-
-cross_ticks(side = 1, at = date.ticks, labels = quarterly_dates(date.ticks), tcl = .2, cex = fnt)
-cross_ticks(side = 2, at = y2.grid, tcl = .2, cex = fnt)
-cross_ticks(side = 4, at = y2.grid, tcl = .2, cex = fnt)
-# print to pdf if needed
-if (print2pdf == 1){ par(op);dev.off() }
 
 # %% ESTIMATE THE ARMA MODELS
 P <- 2  # max AR order
@@ -138,37 +99,109 @@ cat("------ BIC ------\n");print(round(BIC.pq,4))
 cat("------ HQC ------\n");print(round(HQC.pq,4))
 cat("----------------------------------------- \n")
 # Find best models
-aic_min <- which(AIC.pq == min(AIC.pq, na.rm = TRUE), arr.ind = TRUE)
-bic_min <- which(BIC.pq == min(BIC.pq, na.rm = TRUE), arr.ind = TRUE)
-hqc_min <- which(HQC.pq == min(HQC.pq, na.rm = TRUE), arr.ind = TRUE)
+aic.min <- which(AIC.pq == min(AIC.pq, na.rm = TRUE), arr.ind = TRUE)
+bic.min <- which(BIC.pq == min(BIC.pq, na.rm = TRUE), arr.ind = TRUE)
+hqc.min <- which(HQC.pq == min(HQC.pq, na.rm = TRUE), arr.ind = TRUE)
 
-p_aic <- aic_min[1] - 1
-q_aic <- aic_min[2] - 1
-p_bic <- bic_min[1] - 1
-q_bic <- bic_min[2] - 1
-p_hqc <- hqc_min[1] - 1
-q_hqc <- hqc_min[2] - 1
+p.aic <- aic.min[1] - 1
+q.aic <- aic.min[2] - 1
+p.bic <- bic.min[1] - 1
+q.bic <- bic.min[2] - 1
+p.hqc <- hqc.min[1] - 1
+q.hqc <- hqc.min[2] - 1
 
-cat(sprintf("AIC best fitting ARMA model is: ARMA(%d,%d)\n", p_aic, q_aic))
-cat(sprintf("BIC best fitting ARMA model is: ARMA(%d,%d)\n", p_bic, q_bic))
-cat(sprintf("HQC best fitting ARMA model is: ARMA(%d,%d)\n", p_hqc, q_hqc))
+cat(sprintf("AIC best fitting ARMA model is: ARMA(%d,%d)\n", p.aic, q.aic))
+cat(sprintf("BIC best fitting ARMA model is: ARMA(%d,%d)\n", p.bic, q.bic))
+cat(sprintf("HQC best fitting ARMA model is: ARMA(%d,%d)\n", p.hqc, q.hqc))
 
 # Estimate the final 'best' models
-arma_aic <- arima(us.data$dy, order = c(p_aic, 0, q_aic))
-arma_bic <- arima(us.data$dy, order = c(p_bic, 0, q_bic))
-arma_hqc <- arima(us.data$dy, order = c(p_hqc, 0, q_hqc))
+arma.aic <- arima(us.data$dy, order = c(p.aic, 0, q.aic))
+arma.bic <- arima(us.data$dy, order = c(p.bic, 0, q.bic))
+arma.hqc <- arima(us.data$dy, order = c(p.hqc, 0, q.hqc))
 
-# %% Print full results
-source(utility.functions)
-print_results(arma_aic)
+# % Print full results
+print_results(arma.aic)
+yhat.aic = fitted(arma.aic)
+yhat.bic = fitted(arma.bic)
+yhat.hqc = fitted(arma.hqc)
 
-y_aic = fitted(arma_aic)
-y_bic = fitted(arma_bic)
-y_hqc = fitted(arma_hqc)
-matplot(us.data$date, 
-  cbind(us.data$dy, y_aic, y_bic), 
-  type = "l", col = c("black", "red", "green"), lwd = 2)
-abline(h = 0)
+# using auto-arima (not recommended)
+auto.arima() 
+
+# %% new plots 
+
+# set date breaks and fonts size
+fnt = 15
+
+# # plot raw series
+p1 = ggplot(us.data, aes(x = date, y = y)) +
+      theme_db(font_size = fnt) + 
+      theme(axis.text.x = element_text(angle = 0, vjust = 1)) + 
+      add_recessions(data = recession_periods(us.data)) +
+      geom_line(color = "#5B8FD1", linewidth = 3/4) +
+      gg_yaxis(ylims = c(7.45, 10.05)) + 
+      gg_dates(date_breaks, "q")
+
+p1 
+      # scale_x_date( name = "" , breaks = date_breaks,  
+      #               expand = expansion(mult = c(.01, .01)),
+      #               labels = gg_dates(type = "quarterly")  )
+
+# plot differences
+# p2 = ggplot( us.data, aes(x = date, y = dy) ) +
+#       theme_db( font_size = fnt ) + 
+#       theme(axis.text.x = element_text(angle = 00, vjust = 1)) + 
+#       add_recessions( data = recession_periods(us.data) ) +
+#       geom_line( color = "#5B8FD1", linewidth = 3/4 ) +
+#       gg_yaxis( ylims = c(-12,16) ) + 
+#       scale_x_date( name = "" , breaks = date_breaks,  
+#                     expand = expansion(mult = c(.01, .01)),
+#                     labels = gg_dates(type = "quarterly")  )
+# 
+# p12 = p1 / p2; print(p12)
+# ggsave("myplot.pdf", p12, width = 9, height = 9 )
+
+# change these two scale_x_date calls (example_ARMA_estimation_USGDP.R)
+
+# earlier:
+# labels = gg_dates(type = "quarterly")
+# labels = date_format("quarterly")
+
+# and the second occurrence:
+# labels = gg_dates(type = "quarterly")
+# labels = date_format("quarterly")
+
+#%% 
+
+# gg_dates = function( dates = us.data$date, type = NULL, breaks = "5 year", padding = 40, name = "") {
+#   if (is.null(type)) type <- "yearly"
+#   type <- match.arg(type, c("daily", "monthly", "quarterly", "yearly"))
+#   
+#   lab_fun <- switch(
+#     type,
+#     daily = function(x) format(x, "%Y.%m.%d"),
+#     monthly = function(x) format(x, "%Y-%m"),
+#     quarterly = function(x) {
+#       q <- (as.integer(format(x, "%m")) - 1) %/% 3 + 1
+#       paste0(format(x, "%Y"), ":Q", q)
+#     },
+#     yearly = function(x) format(x, "%Y")
+#   )
+#   
+#   scale_x_date(
+#     breaks = breaks,
+#     labels = lab_fun,
+#     expand = c(0,0),
+#     limits = as.Date(c("1946-06-01", "2020-04-01")), 
+#     name = name
+#   )
+# }
+
+
+# matplot(us.data$date, 
+#   cbind(us.data$dy, y_aic, y_bic), 
+#   type = "l", col = c("black", "red", "green"), lwd = 2)
+# abline(h = 0)
 
 
 # my_style <- function() {

@@ -9,11 +9,11 @@ if (!"pacman" %in% installed.packages()){install.packages("pacman")}
 functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
 invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
 # LOAD REQUIRED PACKAGES
-pacman::p_load( polynom,matlab )
+pacman::p_load(	tictoc,matlab,forecast,polynom,dplyr )
 # CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, (down)loads online GoogleDrive version
 utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R";  # use file before to avoid Positron issues not opening files
-local.Rfunction 	= "R_utility_functions.R"; 
-if (file.exists(local.Rfunction)){source(local.Rfunction) 
+local.Rfunction 	= "R_utility_functions.R";
+if (file.exists(local.Rfunction)){source(local.Rfunction)
 } else if(file.exists(substr(utility.functions,9,nchar(utility.functions)))){source(utility.functions)
 } else {download.file("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc", destfile = local.Rfunction, mode = "wb")
   source(url("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc"))}
@@ -22,36 +22,31 @@ print2pdf = 0
 path2graphics = "./graphics/"
 # SET WORKING DIRECTORY if needed
 # setwd('D:/_teaching/_current.teaching/_SU.TSEF/code-TSEF')
-set.seed(1234)   			# fix seed if needed for reproducibility of results
+# set.seed(04)   			# fix seed if needed for reproducibility of results
 
-# CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, loads online GoogleDrive version
-# must use file before the source command to avoid Positron issues not opening files
-utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R"
-if (file.exists(utility.functions)) { source(utility.functions) } else
-{source(url("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc")) }
+# %%  SCRIPT STARTS HERE
+source(utility.functions)  # load utility functions, if not already loaded above
+T = 1e5;
+# mean of the ARMA process
+mu = 2; 			
+# MA parameters
+b1 = .5; b2 = 1.2;		
+bL = c(1, b1, b2);  	# MA lag polynomial coefficients
+# cat(" α(L) Roots \n"); roots(aL)
+cat(" β(L) Roots \n"); roots(bL)
+# SIMULATE ARMA. NOTE: you have to add the mean seperately, otherwise the mean is zero
+y = mu + arima.sim(n = T, model = list( ma = c(b1, b2)))
+# Estimate and summarize 
+arma_out 		= arima(y, order = c(0, 0, 2), include.mean = TRUE)
+print_arma 	= print_results(arma_out)
 
-# SET WORKING DIRECTORY if needed
-# setwd('D:/_research/_current/LW03_2024/code')
-
-# %% Lecture Example ARMA(3,2):
-# AR Lag polynomial
-aL = c(1, -1.3, 0.8, 0.1)
-cat("AR Lag Polynomial is: "); print(as.polynomial(aL))
-# MA Lag polynomial
-bL = c(1, 0.4, -0.2)
-cat("MA Lag Polynomial is: "); print(as.polynomial(bL))
-
-# plot theoretical ACF
-cat("Factored α(L) Roots are: \n")
-roots.aL = round(polyroot(rev(aL)),4)
-cat(roots.aL, "\n")
-cat("Factored β(L) Roots are: \n")
-roots.bL = round(polyroot(rev(bL)),4)
-cat(roots.bL, "\n")
-plot_acf0(aL,bL,50)
-					
-# Coefficients:
-#   ar1     ar2     ma1     mean
-# -0.9557  -0.014  0.9889  -0.0974
-# s.e.   0.0592   0.059  0.0155   0.0547
-# aL = c(1, 0.9557, 0.014); bL = c(1, 0.9889)
+# %% Check invertibility by inverting the MA lag polynomial and checking the roots of the inverted lag polynomial
+# bout = print_results(lm(y ~ lag(as.vector(y),1)))
+# psi1 = arma2ar(ar.L = c(1,-0.9) , ma.L = bL, max.lag = 1e4)  
+lams = roots(bL,1)
+inv.lams = 1/lams
+a = Re(inv.lams[1])
+b = Im(inv.lams[1])
+bL.plus = round(c(1,a*2, a^2+b^2), digits = 4)
+roots(bL.plus)
+cat("Invertible MA(2): ", gsub("x","L",as.polynomial(bL.plus)),"\n")
