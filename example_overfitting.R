@@ -12,7 +12,7 @@ invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), so
 pacman::p_load( polynom,matlab,forecast )
 # CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, (down)loads online GoogleDrive version
 utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R";  # use file before to avoid Positron issues not opening files
-local.Rfunction     = "R_utility_functions.R"; 
+local.Rfunction   = "R_utility_functions.R"; 
 if (file.exists(local.Rfunction)){source(local.Rfunction) 
 } else if(file.exists(substr(utility.functions,9,nchar(utility.functions)))){source(utility.functions)
 } else {download.file("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc", destfile = local.Rfunction, mode = "wb")
@@ -54,7 +54,7 @@ for (i in 1:Nsim){
     t.tmp = Nsim*(proc.time() - T0)
     if (i == 1){
     cat("---------------------------------------------------------------------\n")
-    cat("    Total time is approximately: ", t.tmp[3], "Seconds\n")
+    cat("	Total time is approximately: ", t.tmp[3], "Seconds\n")
     cat("---------------------------------------------------------------------\n")
     }
     # store the ARMA terms

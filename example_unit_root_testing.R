@@ -25,17 +25,18 @@ set.seed(1234)
 
 # %% SCRIPT STARTS HERE 
 # 1) read data as tsibble
-NP = read_xlsx("./data/Nelson_Plosser_data.xlsx")
-# NP$Year = ymd(NP$Year, truncated = 2L)
-# NP = as_tsibble(NP, index = Year)
-# print(NP, n = 150)
+NP = read_xlsx("./data/Nelson_Plosser_data.xlsx") %>%
+      mutate(Year = ymd(Year, truncated = 2L)) %>%
+      rename(date = Year) %>%
+      as_tsibble(index = date)
+print(NP, n = 10)
 
 # select the variable to work with for the ADF tests 
 variable_selected = "PCRGNP"        
 y = log(get(variable_selected, NP))           # y = log(NP$"PCRGNP")
 # convert -inf due to log(0) to NA which R handles by removing them 
 y[is.infinite(y)] = NA
-Date = NP$Year
+Date = NP$date
 dy = y-lag(y)
 # dy = c(NA, diff(y))
 trend = 1:length(dy)
@@ -66,12 +67,12 @@ if (Fstat < 6.49) { cat( " Do NOT Reject H₀: 𝛾 = a₂ = 0 --> Series has a 
 	{ cat(" Reject H₀: 𝛾 = a₂ = 0 --> Series stationary around a deterministic time trend!") } 
 cat("\n")
 
-# select the variable to work with for the ADF tests -------------------------------------------------
+# select the variable to work with for the ADF tests 
 variable_selected = "Unemployment"        
 y = log(get(variable_selected, NP))           # y = log(NP$"Unemployment")
 # convert -inf due to log(0) to NA which R handles by removing them
 y[is.infinite(y)] = NA
-Date = NP$Year
+Date = NP$date
 dy = y-lag(y)
 trend = 1:length(dy)
 

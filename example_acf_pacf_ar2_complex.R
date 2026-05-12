@@ -40,8 +40,8 @@ if (sum(Im(lag.roots)==0)) {
 cat("Modulus of Lag Polynomial roots is:", round(Mod(lag.roots)[1], digits = 4), "\n\n")
 
 # factored-polynomial and roots 
-cat("Factored Polynomial: ", gsub("x","\u03BB",as.polynomial(fliplr(aL))), '\n')
-fact.roots = round(polyroot(fliplr(aL)),4)
+cat("Factored Polynomial: ", gsub("x","\u03BB",as.polynomial(rev(aL))), '\n')
+fact.roots = round(polyroot(rev(aL)),4)
 if (sum(Im(fact.roots)==0)) {
   cat("Factored Polynomial roots are:", Re(fact.roots), "\n") } else {
   cat("Factored Polynomial roots are:", fact.roots, "\n" ) 

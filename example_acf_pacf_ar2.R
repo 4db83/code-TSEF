@@ -29,7 +29,8 @@ a1 =  1.50
 a2 = -0.56 
 aL = c(1, -a1, -a2)
 # companion matrix Phi
-Phi = matrix( c(a1,a2,1,0), nrow = 2,ncol = 2)
+Phi = matrix( c(a1,a2,1,0), nrow = 2,ncol = 2, byrow = TRUE)
+print(Phi)
 
 # lag-polynomial and roots
 cat("Lag Polynomial: ", gsub("x","L",as.polynomial(aL)), "\n")
@@ -40,8 +41,8 @@ if (sum(Im(lag.roots)==0)) {
 }
 
 # factored-polynomial and roots ----
-cat("Factored Polynomial: ", gsub("x","\u03BB",as.polynomial(fliplr(aL))), '\n')
-fact.roots = round(polyroot(fliplr(aL)),4)
+cat("Factored Polynomial: ", gsub("x","\u03BB",as.polynomial(rev(aL))), '\n')
+fact.roots = round(polyroot(rev(aL)),4)
 if (sum(Im(fact.roots)==0)) {
   cat("Factored Polynomial roots are:", Re(fact.roots), "\n\n") } else {
   cat("Factored Polynomial roots are:", fact.roots, "\n\n" ) 
@@ -57,7 +58,7 @@ plot(	polynomial(aL), xlim = c(1,1.5), ylim = c(-0.01, 0.01), col="dodgerblue", 
       xlab = "(a) Roots of lag polynomial", ylab = "")
 abline(h = 0); abline(v = Re(lag.roots), col="red", lwd=2, lty=2)
 # and factored-polynomial
-plot(	polynomial(fliplr(aL)), xlim = c(0.5,.9), ylim = c(-0.01, 0.01), col="dodgerblue", lwd=2,
+plot(	polynomial(rev(aL)), xlim = c(0.5,.9), ylim = c(-0.01, 0.01), col="dodgerblue", lwd=2,
 			xlab = "(b) Characteristic roots", ylab = "")
 abline(h = 0); abline(v = Re(fact.roots), col="red", lwd=2, lty=2)
 

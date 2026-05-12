@@ -9,7 +9,7 @@ if (!"pacman" %in% installed.packages()){install.packages("pacman")}
 functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
 invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
 # LOAD REQUIRED PACKAGES
-pacman::p_load(	tictoc,matlab,forecast,polynom,dplyr )
+pacman::p_load(	tictoc,matlab,forecast,polynom,dplyr,crayon )
 # CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, (down)loads online GoogleDrive version
 utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R";  # use file before to avoid Positron issues not opening files
 local.Rfunction 	= "R_utility_functions.R";
@@ -25,15 +25,13 @@ path2graphics = "./graphics/"
 # set.seed(04)   			# fix seed if needed for reproducibility of results
 
 # %%  SCRIPT STARTS HERE
-source(utility.functions)  # load utility functions, if not already loaded above
-T = 1e5;
-# mean of the ARMA process
-mu = 2; 			
-# MA parameters
-b1 = .5; b2 = 1.2;		
-bL = c(1, b1, b2);  	# MA lag polynomial coefficients
+T = 1e5; 								# sample size 
+mu = 2; 								# mean of the ARMA process
+# MA parameters	
+b1 = .5; b2 = 1.2;			
+bL = c(1, b1, b2);  		# MA lag polynomial coefficients
 # cat(" α(L) Roots \n"); roots(aL)
-cat(" β(L) Roots \n"); roots(bL)
+cat("β(L) Roots \n"); roots(bL)
 # SIMULATE ARMA. NOTE: you have to add the mean seperately, otherwise the mean is zero
 y = mu + arima.sim(n = T, model = list( ma = c(b1, b2)))
 # Estimate and summarize 
@@ -48,5 +46,6 @@ inv.lams = 1/lams
 a = Re(inv.lams[1])
 b = Im(inv.lams[1])
 bL.plus = round(c(1,a*2, a^2+b^2), digits = 4)
-roots(bL.plus)
-cat("Invertible MA(2): ", gsub("x","L",as.polynomial(bL.plus)),"\n")
+cat("Invertible β(L)+ Roots \n"); roots(bL)
+sep(); roots(bL.plus); sep()
+cat(crayon::green("Invertible theoretical MA(2): ", gsub("x","L",as.polynomial(bL.plus)),"\n"))

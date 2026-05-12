@@ -35,7 +35,7 @@ usdata =  get_fred_data( fred_list ) %>%
               y = log(GDPC1),
               dy = 400 * (y - lag(y, 1))
             ) %>%
-            filter( date < as.Date("2020-01-01") ) %>%
+            # filter( date < as.Date("2020-01-01") ) %>%
             filter( date >= as.Date("1947-01-01") )
 # write to parquet file for later use
 write_parquet(usdata, "./data/USdata.parquet")

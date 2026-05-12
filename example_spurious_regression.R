@@ -20,22 +20,23 @@ if (file.exists(local.Rfunction)){source(local.Rfunction)
 # define some printing to pdf parameters and graphics directory
 print2pdf = 0
 path2graphics = "./graphics/"
-# fix seed if needed for reproducibility of results
-set.seed(1234)
 # SET WORKING DIRECTORY if needed
 # setwd('D:/_teaching/_current.teaching/_SU.TSEF/code-TSEF')
 
 # %%  SCRIPT STARTS HERE
-phi = .0;			# autocorrelation coefficient for x and y
-T 	= 5e2;		# sample size T
-Nsim = 1e4;		# number of simulations
-# set.seed(1234)
+phi = 0;					# autocorrelation coefficient for x and y
+T 	= 5e2;				# sample size T
+Nsim = 1e5;				# number of simulations
+# set.seed(1234) 	# fix seed if needed for reproducibility of results
+
 plan(multisession, workers = detectCores() - 1)
+cat("Running: this is going to take some time ... for Nsim = 1e5 ≈ 20 seconds ")
 tic()
 ols_sim <- future_map(1:Nsim, function(ii) {
+  # x = rnorm(T); y = rnorm(T); 
   x = filter(rnorm(T), phi, method = "r")
   y = filter(rnorm(T), phi, method = "r")
-  # x = rnorm(T); y = rnorm(T); 
+
   lm.out  = lm(y ~ x)
   rout = list(
     beta.hat = lm.out$coefficients, 
