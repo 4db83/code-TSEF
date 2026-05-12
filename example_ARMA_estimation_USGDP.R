@@ -27,8 +27,8 @@ set.seed(1234)   			# fix seed if needed for reproducibility of results
 
 # read US Data
 us.data = read_parquet("./data/USdata.parquet") %>%
-  rename(NBER = USRECQ, gdp = GDPC1) %>%
-  filter( date < as.Date("2020-01-01") )
+  rename(NBER = USRECQ, gdp = GDPC1) # %>%
+  # filter( date < as.Date("2020-01-01") )
 # write_csv(us.data, "./data/USdata.csv")
 head(us.data)
 
@@ -149,27 +149,24 @@ r1 = ggplot(us.data, aes(x = date, y = dy)) +
       theme_db(font_size = fnt) + 
       theme(axis.text.x = element_text(angle = 0, vjust = 1) ) +
       add_recessions(data = recession_periods(us.data)) +
-  
-      geom_line(aes(											color = "GDP growth"), linewidth = 3/4) +
-      geom_line(aes(y = fitted(arma.aic), color = "AIC")) + 
-      geom_line(aes(y = fitted(arma.bic), color = "BIC"), linetype = "dashed") +
-      scale_color_manual(
-        breaks = c("GDP growth", "AIC", "BIC"),  # controls order
-        values = c( "GDP growth" = "#5B8FD1", 
-                    "AIC" = "#e2123c", 
-                    "BIC" = "#059a1c"), 
-        name = NULL) +
       gg_yaxis( ylims = seq(-12, 16, by = 4) ) + 
       geom_vline( xintercept = great.moderation, color = "#e62828", linetype = "dashed", linewidth = 1/2) +
       geom_hline( yintercept = 0, linewidth = 1/3) +
-      gg_dates(date_breaks, "q")
+      gg_dates(date_breaks, "q") + 
+      # add the lines 
+      geom_line(aes(											color = "GDP growth"), linewidth = 3/4) +
+      geom_line(aes(y = fitted(arma.aic), color = "AIC")) + 
+      geom_line(aes(y = fitted(arma.bic), color = "BIC"), linetype = "dashed") +
+      scale_color_manual( breaks = c( "GDP growth", "AIC", "BIC"),  
+                          values = c( "GDP growth" 	= "#5B8FD1", 
+                                      "AIC" 				= "#e2123c", 
+                                      "BIC" 				= "#059a1c"),  name = NULL)
 
 r2 = ggplot(us.data, aes(x = date, y = residuals(arma.aic))) +
       theme_db(font_size = fnt) + 
       theme(axis.text.x = element_text(angle = 0, vjust = 1)) + 
       add_recessions(data = recession_periods(us.data)) +
-      geom_line(color = "#5B8FD1", linewidth = 3/4) +
-      # geom_line( aes(y = fitted(arma.aic)), color = "#e2123c") + 
+      geom_line(color = "#e2123c", linewidth = 3/4) +
       geom_line( aes(y = residuals(arma.bic)), color = "#059a1c", linetype = "dashed") + 
       gg_yaxis( ylims = seq(-12, 16, by = 4) ) + 
       geom_vline( xintercept = great.moderation, color = "#e62828", linetype = "dashed", linewidth = 1/2) +
@@ -179,12 +176,12 @@ r2 = ggplot(us.data, aes(x = date, y = residuals(arma.aic))) +
 r12 = r1 / r2; print(r12)
 # ggsave("US-GDP-fit.pdf", r12, height = 10, width = 12 ) 	# to save to pdf
 
-# theoretical ACF/PACF of fitted models
-# plot_acf0(aout.aic$aL,aout.aic$bL)
-# plot_acf0(aout.bic$aL,aout.aic$bL)
+# %% theoretical ACF/PACF of fitted models
+source(utility.functions)
+plot_acf0(aout.aic$aL, aout.aic$bL)
+plot_acf0(aout.bic$aL, aout.bic$bL)
 
-
-
+# plot_acf(us.data$dy)
 # %% using auto-arima (not recommended)
 # convert first to time-series object
 ts.dy = ts(us.data$dy, start = c(1947, 1), frequency = 4)
