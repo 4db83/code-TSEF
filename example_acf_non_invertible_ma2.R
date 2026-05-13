@@ -40,7 +40,7 @@ if (sum(Im(lag.roots)==0)) {
 	cat("Lag polynomial roots are:", lag.roots, "\n" ) 
 }
 # factored-polynomial and roots ----
-fact.roots = round(polyroot((bL)),4)
+fact.roots = round(polyroot(rev(bL)),4)
 if (sum(Im(fact.roots)==0)) {
   cat("Factored Polynomial roots are:", Re(fact.roots), "\n\n") } else {
   cat("Factored Polynomial roots are:", fact.roots, "\n\n" ) 

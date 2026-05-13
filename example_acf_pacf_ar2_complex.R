@@ -66,6 +66,7 @@ x = zeros(B+T,1)
 for (t in 3:(B+T)){
   x[t] = c + a1*x[t-1] + a2*x[t-2] + u[t]
 }
+
 # using inbuild function: arima.sim simulates a zero mean ARIMA model -> need to add mean Mu = c/a(1) to it.
 # x = c/sum(aL) + arima.sim(n = T+B, list(ar = -aL[-1], ma = 0) );
 x = x[-(1:B)]; # remove the burn-in period

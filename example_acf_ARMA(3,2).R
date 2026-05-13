@@ -35,10 +35,12 @@ if (file.exists(utility.functions)) { source(utility.functions) } else
 
 # %% Lecture Example ARMA(3,2):
 # AR Lag polynomial
-aL = c(1, -1.3, 0.8, 0.1)
+aL = c(1, -1.3, .8, 0.1)
+# aL = c(1, -.9999)
 cat("AR Lag Polynomial is: "); print(as.polynomial(aL))
 # MA Lag polynomial
 bL = c(1, 0.4, -0.2)
+# bL = 1
 cat("MA Lag Polynomial is: "); print(as.polynomial(bL))
 
 # plot theoretical ACF

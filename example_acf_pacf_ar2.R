@@ -52,7 +52,7 @@ if (sum(Im(fact.roots)==0)) {
 char.roots = eigen(Phi)[1] # returns a list
 cat("Characteristics roots (eigenvalues of Phi) are:", unlist(char.roots), "\n")
 
-# plot lag-polynomial -----
+# %% plot lag-polynomial 
 p2 = par(mfrow=c(1,2), mar = c(3,4,2,3), mgp = c(2.2,0.7,0) )
 plot(	polynomial(aL), xlim = c(1,1.5), ylim = c(-0.01, 0.01), col="dodgerblue", lwd=2, 
       xlab = "(a) Roots of lag polynomial", ylab = "")
@@ -62,5 +62,10 @@ plot(	polynomial(rev(aL)), xlim = c(0.5,.9), ylim = c(-0.01, 0.01), col="dodgerb
 			xlab = "(b) Characteristic roots", ylab = "")
 abline(h = 0); abline(v = Re(fact.roots), col="red", lwd=2, lty=2)
 
-# plot theoretical ACF/PACF -----
+# %% plot theoretical ACF/PACF 
 plot_acf0(aL,1,50)
+T = 1e6
+# a1 = 0; a2 = 0
+ar2.sim = arima.sim(n = T, model = list( ar = c(a1, a2)))
+# plot(ar2.sim)
+plot_acf(ar2.sim)
