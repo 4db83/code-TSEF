@@ -37,11 +37,12 @@ if (file.exists(utility.functions)) { source(utility.functions) } else
 # AR Lag polynomial
 aL = c(1, -1.3, .8, 0.1)
 # aL = c(1, -.9999)
-cat("AR Lag Polynomial is: "); print(as.polynomial(aL))
+cat("AR Lag Polynomial is: "); print(gsub("x","L",as.polynomial(aL)))
+# gsub("x","L",as.polynomial(aL)), "\n")
 # MA Lag polynomial
 bL = c(1, 0.4, -0.2)
 # bL = 1
-cat("MA Lag Polynomial is: "); print(as.polynomial(bL))
+cat("MA Lag Polynomial is: "); print(gsub("x","L",as.polynomial(bL)))
 
 # plot theoretical ACF
 cat("Factored α(L) Roots are: \n")
