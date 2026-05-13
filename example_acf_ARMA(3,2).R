@@ -24,15 +24,6 @@ path2graphics = "./graphics/"
 # setwd('D:/_teaching/_current.teaching/_SU.TSEF/code-TSEF')
 set.seed(1234)   			# fix seed if needed for reproducibility of results
 
-# CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, loads online GoogleDrive version
-# must use file before the source command to avoid Positron issues not opening files
-utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R"
-if (file.exists(utility.functions)) { source(utility.functions) } else
-{source(url("https://drive.google.com/uc?export=download&id=1lCbHBcijii-Ff6c3_EJnJeUGkPtK8Mbc")) }
-
-# SET WORKING DIRECTORY if needed
-# setwd('D:/_research/_current/LW03_2024/code')
-
 # %% Lecture Example ARMA(3,2):
 # AR Lag polynomial
 aL = c(1, -1.3, .8, 0.1)

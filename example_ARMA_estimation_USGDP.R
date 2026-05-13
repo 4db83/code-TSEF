@@ -27,8 +27,8 @@ set.seed(1234)   			# fix seed if needed for reproducibility of results
 
 # read US Data
 us.data = read_parquet("./data/USdata.parquet") %>%
-  rename(NBER = USRECQ, gdp = GDPC1) # %>%
-  # filter( date < as.Date("2020-01-01") )
+  rename(NBER = USRECQ, gdp = GDPC1) %>%
+  filter( date < as.Date("2020-01-01") )
 # write_csv(us.data, "./data/USdata.csv")
 head(us.data)
 
@@ -72,8 +72,8 @@ P = 2  # max AR order
 Q = 1  # max MA order
 
 # Initialize matrices for information criteria
-BIC.pq = matrix(NA, nrow = P + 1, ncol = Q + 1)
 AIC.pq = matrix(NA, nrow = P + 1, ncol = Q + 1)
+BIC.pq = matrix(NA, nrow = P + 1, ncol = Q + 1)
 HQC.pq = matrix(NA, nrow = P + 1, ncol = Q + 1)
 
 # Loop over AR and MA orders
@@ -86,7 +86,7 @@ for (p in 0:P) {
     AIC.pq[p + 1, q + 1] = log(arma.fit$sigma2) + 2*K/T
     BIC.pq[p + 1, q + 1] = log(arma.fit$sigma2) + K*log(T)/T
     # Hannan-Quinn Criterion
-    n = length(us.data$dy)
+    # n = length(us.data$dy)
     HQC.pq[p + 1, q + 1] = log(arma.fit$sigma2) + 2*K*log(log(T))/T
   }
 }
@@ -142,9 +142,6 @@ aout.bic = print_results(arma.bic)
 # print_results(arma.hqc)
 
 # %% Plot compare fitted as well as residuals from biggest and smallest model
-
-source(utility.functions)
-
 r1 = ggplot(us.data, aes(x = date, y = dy)) +
       theme_db(font_size = fnt) + 
       theme(axis.text.x = element_text(angle = 0, vjust = 1) ) +
@@ -177,7 +174,6 @@ r12 = r1 / r2; print(r12)
 # ggsave("US-GDP-fit.pdf", r12, height = 10, width = 12 ) 	# to save to pdf
 
 # %% theoretical ACF/PACF of fitted models
-source(utility.functions)
 plot_acf0(aout.aic$aL, aout.aic$bL)
 plot_acf0(aout.bic$aL, aout.bic$bL)
 
@@ -189,7 +185,9 @@ arma.auto = auto.arima( window( ts.dy, start = c(1947,1), end	= c(2019,4) ),
 																ic = c("aic") )  			# ic = c("aicc", "aic", "bic"),
 yhat.auto = fitted(arma.auto)
 print_results(arma.auto)
-plot( forecast(arma.auto,h=40) )
+pdf("forecast.pdf", height = 6, width = 10) 					# to save to pdf
+plot( forecast(arma.auto, h=40) )
+dev.off()
 lines( yhat.auto, col = "blue" )
 abline(h=0)
 

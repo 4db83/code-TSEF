@@ -9,8 +9,7 @@ if (!"pacman" %in% installed.packages()){install.packages("pacman")}
 functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
 invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
 # LOAD REQUIRED PACKAGES
-pacman::p_load( tictoc,matlab,tsibble,zoo,tidyverse,readxl,sandwich,car,
-								quantmod,urca) 
+pacman::p_load( tictoc,matlab,tsibble,zoo,tidyverse,readxl,sandwich,car,urca) 
 # CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, (down)loads online GoogleDrive version
 utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R";  # use file before to avoid Positron issues not opening files
 local.Rfunction   = "R_utility_functions.R"; 
