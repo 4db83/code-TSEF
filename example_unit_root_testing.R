@@ -9,7 +9,8 @@ if (!"pacman" %in% installed.packages()){install.packages("pacman")}
 functions_path = c("./local.functions/"); if (dir.exists(functions_path)){
 invisible( lapply( paste0(functions_path, list.files(functions_path, "*.R")), source ) ) }
 # LOAD REQUIRED PACKAGES
-pacman::p_load( tictoc,matlab,tsibble,zoo,tidyverse,readxl,sandwich,car,quantmod ) 
+pacman::p_load( tictoc,matlab,tsibble,zoo,tidyverse,readxl,sandwich,car,
+								quantmod,urca) 
 # CHECKS if R_utility_functions.R at D:/matlab.tools/db.toolbox exist, if not, (down)loads online GoogleDrive version
 utility.functions = "file:///D:/matlab.tools/db.toolbox/R_utility_functions.R";  # use file before to avoid Positron issues not opening files
 local.Rfunction   = "R_utility_functions.R"; 
@@ -32,8 +33,8 @@ NP = read_xlsx("./data/Nelson_Plosser_data.xlsx") %>%
 print(NP, n = 10)
 
 # select the variable to work with for the ADF tests 
-variable_selected = "PCRGNP"        
-y = log(get(variable_selected, NP))           # y = log(NP$"PCRGNP")
+variable.selected = "PCRGNP"        
+y = log(get(variable.selected, NP))           # y = log(NP$"PCRGNP")
 # convert -inf due to log(0) to NA which R handles by removing them 
 y[is.infinite(y)] = NA
 Date = NP$date
@@ -52,9 +53,9 @@ head(pacf)
 # Do F-test (manually) to test if unit-root with drift --> 𝛾 = a₂ = 0 (Joint F-test ϕ₃)
 # joint.1 = linearHypothesis( adf.1, c("trend=0", "lag(dy, 1) =0"), test = c("F") )
 # print(joint.1)
-cat(" Nelson-Plosser Series analyzed is: ", variable_selected, "\n")
-df.UR = print_results( lm(dy ~ trend + lag(y) + lag(dy,1) ) , -2, Hide = 0)
-df.R  = print_results( lm(dy ~                  lag(dy,1) ) , -2, Hide = 1)
+cat(" Nelson-Plosser Series analyzed is: ", variable.selected, "\n")
+df.UR = print_results( lm(dy ~ trend + lag(y) + lag(dy,1) ) , "OLS", Hide = 0)
+df.R  = print_results( lm(dy ~                  lag(dy,1) ) , "OLS", Hide = 1)
 plot_acf(df.UR$uhat)
 
 No.restrictions = df.UR$K - df.R$K
@@ -67,9 +68,9 @@ if (Fstat < 6.49) { cat( " Do NOT Reject H₀: 𝛾 = a₂ = 0 --> Series has a 
 	{ cat(" Reject H₀: 𝛾 = a₂ = 0 --> Series stationary around a deterministic time trend!") } 
 cat("\n")
 
-# select the variable to work with for the ADF tests 
-variable_selected = "Unemployment"        
-y = log(get(variable_selected, NP))           # y = log(NP$"Unemployment")
+# %% select the variable to work with for the ADF tests 
+variable.selected = "Unemployment"        
+y = log(get(variable.selected, NP))           # y = log(NP$"Unemployment")
 # convert -inf due to log(0) to NA which R handles by removing them
 y[is.infinite(y)] = NA
 Date = NP$date
@@ -87,9 +88,9 @@ head(pacf)
 # Do F-test (manually) to test if unit-root without drift --> a₀ = 𝛾 = 0 (Joint F-test ϕ₃)
 # joint.1 = linearHypothesis( adf.1, c("trend=0", "lag(dy, 1) =0"), test = c("F") )
 # print(joint.1)
-cat(" Nelson-Plosser Series analyzed is: ", variable_selected, "\n")
-df.UR = print_results( lm(dy ~ lag(y) + lag(dy, 1) ) , -2, Hide = 0)
-df.R  = print_results( lm(dy ~ 0      + lag(dy, 1) ) , -2, Hide = 1)
+cat(" Nelson-Plosser Series analyzed is: ", variable.selected, "\n")
+df.UR = print_results( lm(dy ~ lag(y) + lag(dy, 1) ) , "OLS", Hide = 0)
+df.R  = print_results( lm(dy ~ 0      + lag(dy, 1) ) , "OLS", Hide = 1)
 plot_acf(df.UR$uhat)
 
 No.restrictions = df.UR$K - df.R$K
@@ -102,3 +103,16 @@ if (Ftest < 4.72) { cat( " Do NOT Reject H₀: a₀ = 𝛾 = 0 --> Series has a 
 { cat(" Reject H₀: a₀ = 𝛾 = 0 --> Series is stationary!") }
 
 plot_acf(dy)
+
+# %%using ADF in urca package 
+urca.adf = ur.df(na.omit(y), type = "drift", lags = 1)
+urca.adf = ur.df(na.omit(y), type = "drift", selectlags = c("AIC")) 
+summary(urca.adf)
+
+# "point optimal" test of Elliot et. al 
+urca.gls <- ur.ers(na.omit(y), type = "DF-GLS", 
+										model = "constant", lag.max = 1)
+summary(urca.gls)
+
+
+
