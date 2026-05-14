@@ -45,7 +45,7 @@ trend = 1:length(dy)
 plot( Date, y, type = 'l', lwd = 1.5, 
       cex.lab  = 1.5, cex.axis = 1.5, cex.main = 1.5 )
 
-# plot ACF
+# %% plot ACF
 pacf = plot_acf(dy)
 head(pacf)
 
@@ -54,7 +54,7 @@ head(pacf)
 # print(joint.1)
 cat(" Nelson-Plosser Series analyzed is: ", variable.selected, "\n")
 df.UR = print_results( lm(dy ~ trend + lag(y) + lag(dy,1) ) , "OLS", Hide = 0)
-df.R  = print_results( lm(dy ~                  lag(dy,1) ) , "OLS", Hide = 1)
+df.R  = print_results( lm(dy ~                  lag(dy,1) ) , "OLS", Hide = 0)
 plot_acf(df.UR$uhat)
 
 No.restrictions = df.UR$K - df.R$K
@@ -105,13 +105,13 @@ plot_acf(dy)
 
 # %%using ADF in urca package 
 urca.adf = ur.df(na.omit(y), type = "drift", lags = 1)
-urca.adf = ur.df(na.omit(y), type = "drift", selectlags = c("AIC")) 
+# urca.adf = ur.df(na.omit(y), type = "drift", selectlags = c("AIC")) 
 summary(urca.adf)
 
-# "point optimal" test of Elliot et. al 
-urca.gls <- ur.ers(na.omit(y), type = "DF-GLS", 
-										model = "constant", lag.max = 1)
-summary(urca.gls)
-
+# # "point optimal" test of Elliot et. al 
+# urca.gls <- ur.ers(na.omit(y), type = "DF-GLS", 
+# 										model = "constant", lag.max = 1)
+# summary(urca.gls)
+# 
 
 
