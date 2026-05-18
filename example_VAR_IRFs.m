@@ -41,10 +41,10 @@ reshape(fevd,(N+1)*k,k);
 % do the plotting now
 clf; POS = [.5 .35 .35]; FNS = 16; PS2 = -1.17;
 subplot(1,k,1)
-  plot(irf(:,[1:k]))
+  plot((0:15)',irf(:,[1:k]))
   ylim([0 .6])
   if UNIT; ylim([0 1.2]); end
-  xlim([0 15])
+  xlim([-.5 15])
 setplot([.12 POS],[],FNS)
 % add2yaxislabel
 addlegend({'$u_1$','$u_2$'})
@@ -52,10 +52,10 @@ addsubtitle('Response of $x_1$ to shocks in', PS2)
 hline(0,'k-');
 
 subplot(1,k,2);
-  plot(irf(:,[k+1:end]));
+  plot((0:15)',irf(:,[k+1:end]));
   ylim([0 .8])
   if UNIT; ylim([0 1.2]); end
-  xlim([0 15])
+  xlim([-.5 15])
 setplot([ .55 POS],[],FNS)
 % add2yaxislabel
 addlegend({'$u_1$','$u_2$'})
